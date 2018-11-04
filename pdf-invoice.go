@@ -2,15 +2,14 @@ package go_stripe_pdf_invoice
 
 import (
 	"html/template"
-	"fmt"
 	"bytes"
 	"path/filepath"
 	"github.com/ryomak/go-stripe-pdf-invoice/templates"
 	"github.com/jung-kurt/gofpdf"
+	"fmt"
 )
 
-func MakeDefaultPDF(stripeSecretKey ,invoiceID string,company Company,clientCompany ClientCompany)(interface{},error){
-	fmt.Println("start")
+func MakePDF(stripeSecretKey ,invoiceID string,company Company,clientCompany ClientCompany)(interface{},error){
 	i,err := getInvoice(stripeSecretKey,invoiceID)
 	if err != nil{
 		return nil, err
@@ -20,11 +19,15 @@ func MakeDefaultPDF(stripeSecretKey ,invoiceID string,company Company,clientComp
 		return nil, err
 	}
 	//make html to pdf
-	fmt.Println(htmlStr)
 	pdf := gofpdf.New("L", "mm", "A4", "")
-	pdf.SetFont("Helvetica", "", 20)
-	html := pdf.HTMLBasicNew()
+	pdf.AddPage()
+	src, err := templates.Asset("template/GenShinGothic-Regular.ttf")
+	pdf.AddFontFromBytes("reglar","",src)
+	pdf.SetFont("Arial", "B", 15)
+	pdf.SetLeftMargin(45)
+	pdf.SetFontSize(14)
 	_, lineHt := pdf.GetFontSize()
+	html := pdf.HTMLBasicNew()
 	html.Write(lineHt, htmlStr)
 	err = pdf.OutputFileAndClose("example.pdf")
 	if err != nil{
@@ -32,6 +35,7 @@ func MakeDefaultPDF(stripeSecretKey ,invoiceID string,company Company,clientComp
 	}
 	return pdf,nil
 }
+
 //go:generate go-bindata -pkg templates -o=templates/tmpl.go templates/
 func makeBody(vars interface{}, files ...string) (string, error) {
 	t, err := parseAssets(files...)

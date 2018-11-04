@@ -2,7 +2,6 @@ package go_stripe_pdf_invoice
 
 import (
 	"testing" // テストで使える関数・構造体が用意されているパッケージをimport
-	"fmt"
 )
 func TestMakeDefaultPDF(t *testing.T) {
 	_, err := MakeDefaultPDF(
